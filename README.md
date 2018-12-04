@@ -1,6 +1,6 @@
 # Sample Serverless Data Pipeline
 
-This is a sample template for sample serverless data pipeline - Below is a brief explanation of what I have generated for you:
+This is a sample template for a serverless data pipeline - Below is a brief explanation of what I have generated for you:
 
 ```bash
 .

@@ -159,7 +159,7 @@ Resources:
   SourceKinesisStream:
     Type: 'AWS::Kinesis::Stream'
     Properties:
-      Name: eesd-demo-kinesis-stream
+      Name: sample-eesd-kinesis-stream
       ShardCount: 1
 
 
@@ -172,7 +172,7 @@ Resources:
   BackupBucket:
     Type: 'AWS::S3::Bucket'
     Properties:
-      BucketName: eesd-demo-backup-bucket
+      BucketName: sample-eesd-backup-bucket
       LifecycleConfiguration:
         Rules:
           - Status: 'Enabled'
