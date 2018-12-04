@@ -1,0 +1,181 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: Sample SAM Template for End-to-End Serverless Datapipeline Meetup
+
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 512
+
+
+Resources:
+
+  ProcessKinesisStream:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: pipeline/
+      Handler: stream/backup.lambda_handler
+      Runtime: python3.6
+      Description: Emits the kinesis stream and backs up the data to the backup bucket
+      Environment:
+        Variables:
+          BACKUP_BUCKET:
+            Ref: BackupBucket
+
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 's3:PutObject'
+              Resource: 'arn:aws:s3:::*'
+            - Effect: Allow
+              Action:
+                - 'kinesis:DescribeStream'
+                - 'kinesis:DescribeStreamSummary'
+                - 'kinesis:GetRecords'
+                - 'kinesis:GetShardIterator'
+                - 'kinesis:ListShards'
+                - 'kinesis:ListStreams'
+                - 'kinesis:SubscribeToShard'
+              Resource:
+                'Fn::Join':
+                  - ''
+                  - - 'arn:aws:kinesis:'
+                    - Ref: 'AWS::Region'
+                    - ':'
+                    - Ref: 'AWS::AccountId'
+                    - ':stream/'
+                    - Ref: SourceKinesisStream
+      Events:
+        Stream:
+          Type: Kinesis
+          Properties:
+            Stream: !GetAtt SourceKinesisStream.Arn
+            BatchSize: 100
+            StartingPosition: TRIM_HORIZON
+
+
+  ProcessApplianceProvisioned:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: pipeline/
+      Handler: appliance/provision.lambda_handler
+      Runtime: python3.6
+      Description: Extracts appliance information and persists them into dynamodb
+      Environment:
+        Variables:
+          APPLIANCE_TABLE_NAME:
+            Ref: ApplianceTable
+
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 's3:GetObject'
+              Resource: 'arn:aws:s3:::*'
+            - Effect: Allow
+              Action:
+                - 'dynamodb:GetItem'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:Scan'
+                - 'dynamodb:UpdateItem'
+                - 'dynamodb:Query'
+              Resource:
+                'Fn::Join':
+                  - ''
+                  - - 'arn:aws:dynamodb:'
+                    - Ref: 'AWS::Region'
+                    - ':'
+                    - Ref: 'AWS::AccountId'
+                    - ':table/'
+                    - Ref: ApplianceTable
+      Events:
+        ProcessApplianceEvent:
+          Type: S3
+          Properties:
+            Bucket:
+              Ref: BackupBucket
+            Events:
+              - 's3:ObjectCreated:*'
+            Filter:
+              S3Key:
+                Rules:
+                  -
+                    Name: prefix
+                    Value: 'appliance/provisioned/'
+
+  ProcessApplianceDisconnected:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: pipeline/
+      Handler: appliance/disconnected.lambda_handler
+      Runtime: python3.6
+      Description: Handles disconnection event of an appliance
+      Environment:
+        Variables:
+          APPLIANCE_TABLE_NAME:
+            Ref: ApplianceTable
+
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 's3:GetObject'
+              Resource: 'arn:aws:s3:::*'
+            - Effect: Allow
+              Action:
+                - 'dynamodb:GetItem'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:Scan'
+                - 'dynamodb:UpdateItem'
+                - 'dynamodb:Query'
+              Resource:
+                'Fn::Join':
+                  - ''
+                  - - 'arn:aws:dynamodb:'
+                    - Ref: 'AWS::Region'
+                    - ':'
+                    - Ref: 'AWS::AccountId'
+                    - ':table/'
+                    - Ref: ApplianceTable
+      Events:
+        ProcessApplianceEvent:
+          Type: S3
+          Properties:
+            Bucket:
+              Ref: BackupBucket
+            Events:
+              - 's3:ObjectCreated:*'
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: 'appliance/disconnected/'
+
+  SourceKinesisStream:
+    Type: 'AWS::Kinesis::Stream'
+    Properties:
+      Name: eesd-demo-kinesis-stream
+      ShardCount: 1
+
+
+  ApplianceTable:
+    Type: 'AWS::Serverless::SimpleTable'
+    Properties:
+      TableName: Appliances
+
+
+  BackupBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: eesd-demo-backup-bucket
+      LifecycleConfiguration:
+        Rules:
+          - Status: 'Enabled'
+            Transitions:
+              - StorageClass: 'GLACIER'
+                TransitionInDays: 30
