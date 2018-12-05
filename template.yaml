@@ -5,8 +5,12 @@ Description: Sample SAM Template for End-to-End Serverless Datapipeline Meetup
 
 Globals:
   Function:
+    Runtime: python3.6
     Timeout: 10
     MemorySize: 512
+    Environment:
+      Variables:
+        THUNDRA_KEY: 9ab46858-2cda-4de1-8915-daa557a490e1
 
 
 Resources:
@@ -14,9 +18,8 @@ Resources:
   ProcessKinesisStream:
     Type: 'AWS::Serverless::Function'
     Properties:
-      CodeUri: pipeline/
+      CodeUri: pipeline/build/
       Handler: stream/backup.lambda_handler
-      Runtime: python3.6
       Description: Emits the kinesis stream and backs up the data to the backup bucket
       Environment:
         Variables:
@@ -60,7 +63,7 @@ Resources:
   ProcessApplianceProvisioned:
     Type: 'AWS::Serverless::Function'
     Properties:
-      CodeUri: pipeline/
+      CodeUri: pipeline/build/
       Handler: appliance/provision.lambda_handler
       Runtime: python3.6
       Description: Extracts appliance information and persists them into dynamodb
@@ -110,7 +113,7 @@ Resources:
   ProcessApplianceDisconnected:
     Type: 'AWS::Serverless::Function'
     Properties:
-      CodeUri: pipeline/
+      CodeUri: pipeline/build/
       Handler: appliance/disconnected.lambda_handler
       Runtime: python3.6
       Description: Handles disconnection event of an appliance

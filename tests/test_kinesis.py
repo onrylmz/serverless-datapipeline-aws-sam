@@ -6,10 +6,10 @@ import json
 
 
 kinesis_client = boto3.client('kinesis')
-stream_name = 'eesd-demo-kinesis-stream'
+stream_name = 'sample-eesd-kinesis-stream'
 
 def read_test_file(event_type):
-    with open('{}.json'.format(event_type), 'r') as f:
+    with open('./tests/{}.json'.format(event_type), 'r') as f:
         data = json.load(f)
 
     return data

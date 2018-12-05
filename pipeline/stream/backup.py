@@ -1,3 +1,4 @@
+from thundra.thundra_agent import Thundra
 import boto3
 import os
 import base64
@@ -11,11 +12,15 @@ s3_client = boto3.client('s3')
 # Get the bucket name from the Lambda Environment Variable
 backup_bucket = os.environ['BACKUP_BUCKET']
 
+# Initialize thundra
+thundra = Thundra(api_key=os.environ['THUNDRA_KEY'])
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
 # --------------- Main Handler ---------------
+@thundra
 def lambda_handler(event, context):
     '''
     Emits kinesis stream to backup events in S3.
