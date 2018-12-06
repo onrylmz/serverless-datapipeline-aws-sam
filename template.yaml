@@ -10,7 +10,7 @@ Globals:
     MemorySize: 512
     Environment:
       Variables:
-        THUNDRA_KEY: 9ab46858-2cda-4de1-8915-daa557a490e1
+        THUNDRA_KEY: <YOUR_THUNDRA_KEY>
 
 
 Resources:
