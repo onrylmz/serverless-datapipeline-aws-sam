@@ -18,18 +18,17 @@ def main(event_type):
 
     data = read_test_file(event_type)
 
-    records = []
-    for i in range(1):
+    for i in range(10):
         data["payload"]["applianceId"] = 'A{:>9}'.format(i).replace(' ', '0')
-        records.append({
+        r = {
             'Data': json.dumps(data),
             'PartitionKey': '{}'.format(event_type)
-        })
+        }
 
-    kinesis_client.put_records(
-        Records=records,
-        StreamName=stream_name
-    )
+        kinesis_client.put_records(
+            Records=[r],
+            StreamName=stream_name
+        )
 
 
 if __name__ == '__main__':

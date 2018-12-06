@@ -25,8 +25,8 @@ logger.setLevel(logging.INFO)
 @thundra
 def lambda_handler(event, context):
     '''
-        Extracts appliance information and persists them into DynamoDB.
-        '''
+    Extracts appliance information and persists them into DynamoDB.
+    '''
 
     try:
         # Get the object from the event.
@@ -46,7 +46,7 @@ def lambda_handler(event, context):
         if appliance:
             disconnect_appliance(client=dynamo_client, appliance_id=appliance_id)
         else:
-            logger.warn('Appliance with id {} could not be found.'.format(appliance_id))
+            logger.warning('Appliance with id {} could not be found.'.format(appliance_id))
 
     except Exception as e:
         logging.error("Error processing object {} from bucket {}. Exception {}".format(key, bucket, e))
