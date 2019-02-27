@@ -21,6 +21,8 @@ Resources:
       CodeUri: pipeline/build/
       Handler: stream/backup.lambda_handler
       Description: Emits the kinesis stream and backs up the data to the backup bucket
+      Layers:
+        - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:4
       Environment:
         Variables:
           BACKUP_BUCKET:
@@ -67,6 +69,8 @@ Resources:
       Handler: appliance/provision.lambda_handler
       Runtime: python3.6
       Description: Extracts appliance information and persists them into dynamodb
+      Layers:
+        - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:4
       Environment:
         Variables:
           APPLIANCE_TABLE_NAME:
@@ -117,6 +121,8 @@ Resources:
       Handler: appliance/disconnected.lambda_handler
       Runtime: python3.6
       Description: Handles disconnection event of an appliance
+      Layers:
+        - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:4
       Environment:
         Variables:
           APPLIANCE_TABLE_NAME:
