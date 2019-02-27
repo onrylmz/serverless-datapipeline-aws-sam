@@ -49,6 +49,7 @@ def lambda_handler(event, context):
         appliance = find_appliance(client=dynamo_client, appliance_id=appliance_id)
         if appliance:
             update_appliance(client=dynamo_client, appliance_id=appliance_id)
+            logger.info('Appliance {} already provisioned.'.format(appliance_id))
         else:
             create_appliance(
                 client=dynamo_client,

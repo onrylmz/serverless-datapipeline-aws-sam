@@ -15,7 +15,9 @@ This is a sample template for a serverless data pipeline - Below is a brief expl
 |   |   |    |── backup.py          <-- Backup event code
 │   ├── __init__.py
 │   ├── utils.py                    <-- Util functions
-│── requirements.txt                <-- Python dependencies
+│── Makefile                        <-- Makefile
+│── Pipfile                         <-- Python dependencies
+│── Pipfile.lock                    <-- Locked Python dependencies
 ├── template.yaml                   <-- SAM Template
 └── tests                           <-- Unit tests
     
@@ -36,7 +38,7 @@ This is a sample template for a serverless data pipeline - Below is a brief expl
 run the following command to build your project local testing and deployment:
  
 ```bash
-sam build
+make package SERVICE="pipeline"
 ```
 
 If your dependencies contain native modules that need to be compiled specifically for the operating system running on AWS Lambda, use this command to build inside a Lambda-like Docker container instead:
@@ -56,7 +58,7 @@ AWS Lambda Python runtime requires a flat folder with all dependencies including
   ProcessApplianceProvisioned:
     Type: 'AWS::Serverless::Function'
     Properties:
-      CodeUri: pipeline/
+      CodeUri: pipeline/build/
       Handler: appliance/provision.lambda_handler
       Runtime: python3.6
         ...
@@ -98,7 +100,7 @@ aws cloudformation describe-stacks \
 ## Testing
 
 ```bash
-python tests/test_kinesis.py provisioned disconnected
+make test EVENTS="provisioned connected"
 ```
 
 **NOTE**: It is recommended to use a Python Virtual environment to separate your application development from  your system Python installation.
