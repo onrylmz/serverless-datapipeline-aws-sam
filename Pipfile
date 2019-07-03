@@ -9,7 +9,7 @@ name = "pypi"
 
 boto3 = "*"
 thundra = "*"
-urllib3 = "1.24.2"
+urllib3 = "1.25.3"
 
 [dev-packages]
 
